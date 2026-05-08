@@ -58,7 +58,8 @@ class Parameter:
     notes: str = ''
     value: Optional[float] = None
     online_value: Optional[float] = None
-
+    user_modified: bool = False
+    
     @property
     def effective_value(self):
         return self.value if self.value is not None else self.default
