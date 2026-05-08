@@ -303,6 +303,7 @@ class MainWindow(QMainWindow):
             if not (p.min <= val <= p.max):
                 raise ValueError(f'Allowed range: {p.min} to {p.max}')
             p.value = val
+            p.user_modified = True
             self.log(f'Offline value changed: {p.code} = {val}')
         except Exception as e:
             QMessageBox.warning(self, 'Invalid value', str(e))
@@ -354,11 +355,14 @@ class MainWindow(QMainWindow):
                 try:
                     self.gateway.write_param(p, p.effective_value)
                     self.log(f'Download OK {p.code}@{p.address} = {p.effective_value} {p.unit}')
+                    p.user_modified = False
                     ok += 1
                 except Exception as e:
                     self.log(f'Download failed {p.code}@{p.address}: {e}')
                     fail += 1
         self.log(f'Download complete. OK={ok}, Failed={fail}')
+        f ok == 0 and fail == 0:
+        self.log('No user-modified RW parameter found for download')
 
     def save_project(self):
         path, _ = QFileDialog.getSaveFileName(self, 'Save project', '', 'JSON Files (*.json)')
