@@ -339,7 +339,7 @@ class MainWindow(QMainWindow):
 
     def download_modified(self):
         if not self.gateway.is_connected():
-            QMessageBox            QMessageBox.warning(self, 'Not connected', 'Connect first')
+            QMessageBox.warning(self, 'Not connected', 'Connect first')
 
         ok = 0
         fail = 0
