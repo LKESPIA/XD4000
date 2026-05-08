@@ -361,7 +361,7 @@ class MainWindow(QMainWindow):
                     self.log(f'Download failed {p.code}@{p.address}: {e}')
                     fail += 1
         self.log(f'Download complete. OK={ok}, Failed={fail}')
-        f ok == 0 and fail == 0:
+        if ok == 0 and fail == 0:
         self.log('No user-modified RW parameter found for download')
 
     def save_project(self):
