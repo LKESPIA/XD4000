@@ -362,7 +362,7 @@ class MainWindow(QMainWindow):
                     fail += 1
         self.log(f'Download complete. OK={ok}, Failed={fail}')
         if ok == 0 and fail == 0:
-        self.log('No user-modified RW parameter found for download')
+            self.log('No user-modified RW parameter found for download')
 
     def save_project(self):
         path, _ = QFileDialog.getSaveFileName(self, 'Save project', '', 'JSON Files (*.json)')
