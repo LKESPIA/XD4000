@@ -339,19 +339,26 @@ class MainWindow(QMainWindow):
 
     def download_modified(self):
         if not self.gateway.is_connected():
-            QMessageBox.warning(self, 'Not connected', 'Connect first')
-            return
-        reply = QMessageBox.question(
-            self,
-            'Confirm parameter download',
-            'This will write modified RW parameters to the drive. Use only on bench/safe setup. Continue?'
-        )
-        if reply != QMessageBox.Yes:
-            self.log('Download cancelled by user')
-            return
-        ok = 0; fail = 0
+            QMessageBox            QMessageBox.warning(self, 'Not connected', 'Connect first')
+
+        ok = 0
+        fail = 0
+
         for p in self.params:
-            if p.access == 'RW' and p.modified:
+            offline_differs_from_online = (
+                p.online_value is not None and
+                abs(float(p.effective_value) - float(p.online_value)) > 1e-9
+            )
+
+            should_write = (
+                p.access == 'RW' and
+                (
+                    getattr(p, 'user_modified', False) or
+                    offline_differs_from_online
+                )
+            )
+
+            if should_write:
                 try:
                     self.gateway.write_param(p, p.effective_value)
                     self.log(f'Download OK {p.code}@{p.address} = {p.effective_value} {p.unit}')
@@ -360,9 +367,22 @@ class MainWindow(QMainWindow):
                 except Exception as e:
                     self.log(f'Download failed {p.code}@{p.address}: {e}')
                     fail += 1
+
         self.log(f'Download complete. OK={ok}, Failed={fail}')
+
         if ok == 0 and fail == 0:
             self.log('No user-modified RW parameter found for download')
+            return
+
+        reply = QMessageBox.question(
+            self,
+            'Confirm parameter download',
+            'This will write modified RW parameters to the drive. Use only on bench/safe setup. Continue?'
+        )
+
+        if reply != QMessageBox.Yes:
+            self.log('Download cancelled by user')
+
 
     def save_project(self):
         path, _ = QFileDialog.getSaveFileName(self, 'Save project', '', 'JSON Files (*.json)')
